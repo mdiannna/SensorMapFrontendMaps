@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<h1>Test create image from pixels</h1>
+<img src="" id = "myimage" height=400 width=400>
+<script type="text/javascript">
+
+	function addPixelToImageBuffer(x, y, r, g, b) {
+		var pos = (y * width + x) * 4; // position in buffer based on x and y
+        buffer[pos  ] = r;           // some R value [0, 255]
+        buffer[pos+1] = g;           // some G value
+        buffer[pos+2] = b;           // some B value
+        buffer[pos+3] = 255;
+	}
+
+	function addSquareToImageBuffer(xstart, ystart, width, height, r, g, b) {
+		for(var y=ystart; y<ystart+height; y++) {
+			for(var x=xstart; x<xstart+width; x++) {
+				addPixelToImageBuffer(x, y, r, g, b);
+			}
+		}
+	}
+
+	var width = 400,
+    height = 400,
+    buffer = new Uint8ClampedArray(width * height * 4);
+
+    for(var y = 0; y < height; y++) {
+	    for(var x = 0; x < width; x++) {
+	        addPixelToImageBuffer(x, y, 100, 50, 100);           // set alpha channel
+	    }
+	}
+
+	addSquareToImageBuffer(0, 0, 100, 100, 200, 0, 0);
+	addSquareToImageBuffer(100, 0, 100, 100, 200, 0, 100);
+	addSquareToImageBuffer(200, 0, 100, 100, 100, 0, 100);
+	addSquareToImageBuffer(300, 0, 100, 100, 100, 50, 0);
+
+	addSquareToImageBuffer(0, 100, 100, 100, 200, 0, 100);
+	addSquareToImageBuffer(100, 100, 100, 100, 100, 0, 100);
+	addSquareToImageBuffer(200, 100, 100, 100, 100, 50, 0);
+	addSquareToImageBuffer(300, 100, 100, 100, 200, 0, 0);
+
+	addSquareToImageBuffer(0, 200, 100, 100, 100, 0, 100);
+	addSquareToImageBuffer(100, 200, 100, 100, 100, 50, 0);
+	addSquareToImageBuffer(200, 200, 100, 100, 200, 0, 0);
+	addSquareToImageBuffer(300, 200, 100, 100, 200, 0, 100);
+
+
+	addSquareToImageBuffer(0, 300, 100, 100, 100, 50, 0);
+	addSquareToImageBuffer(100, 300, 100, 100, 200, 0, 0);
+	addSquareToImageBuffer(200, 300, 100, 100, 200, 0, 100);
+	addSquareToImageBuffer(300, 300, 100, 100, 100, 0, 100);
+
+
+// doesnt work for row 1
+	// interpolateSquares(0, 0, 100, 100, 100, 0, 100, 100, 50, "vertical", 0);
+	// interpolateSquares(100, 0, 100, 100, 200, 0, 100, 100, 50, "vertical", 0);
+	// interpolateSquares(200, 0, 100, 100, 300, 0, 100, 100, 50, "vertical", 0);
+
+	interpolateSquares(0, 100, 100, 100, 100, 100, 100, 100, 50, "vertical", 1);
+	interpolateSquares(100, 100, 100, 100, 200, 100, 100, 100, 50, "vertical", 1);
+	interpolateSquares(200, 100, 100, 100, 300, 100, 100, 100, 50, "vertical", 1);
+
+
+	interpolateSquares(0, 200, 100, 100, 100, 200, 100, 100, 50, "vertical", 2);
+	interpolateSquares(100, 200, 100, 100, 200, 200, 100, 100, 50, "vertical", 2);
+	interpolateSquares(200, 200, 100, 100, 300, 200, 100, 100, 50, "vertical", 2);
+
+
+	interpolateSquares(0, 300, 100, 100, 100, 300, 100, 100, 50, "vertical", 3);
+	interpolateSquares(100, 300, 100, 100, 200, 300, 100, 100, 50, "vertical", 3);
+	interpolateSquares(200, 300, 100, 100, 300, 300, 100, 100, 50, "vertical", 3);
+
+	function interpolateSquares(xstart1, ystart1, width1, height1, xstart2, ystart2, width2, height2,  margin, orientation, row) {
+		// works perfectlu for second row
+		var pos1 = (width1*row+ ystart1 * width1 + xstart1) * 4; // position in buffer based on x and y
+		// var pos1 = (ystart1 * width1 + xstart1) * 4; // position in buffer based on x and y
+		var rii = buffer[pos1];
+		var gii = buffer[pos1 + 1];
+		var bii = buffer[pos1 + 2];
+
+		// alert(rii);
+		// alert(gii);
+		// alert(bii);
+		// alert(buffer[pos1+3]);
+
+
+		// works perfectly for second row
+		var pos2 = (width2*row + ystart2 * width2 + xstart2) * 4; // position in buffer based on x and y
+		// var pos2 = (ystart2 * width2 + xstart2) * 4; // position in buffer based on x and y
+
+		ri2 = buffer[pos2];
+		gi2 = buffer[pos2 + 1];
+		bi2 = buffer[pos2 + 2];
+		
+		rate_r = (rii - ri2) / margin;
+		rate_g = (gii - gi2) / margin;
+		rate_b = (bii - bi2)/margin;
+
+		if(orientation=="vertical") {
+			var ri = rii;
+			var gi = gii;
+			var bi = bii;
+
+			// ystart1 == ystart2
+			for(var y=ystart1; y<ystart1+height1; y++) {
+				ri=rii;
+				gi=gii;
+				bi=bii;
+
+				for(var x = xstart1 + width1 - (margin/2); x < xstart1 + width1 + (margin/2);  x++) {
+
+			        addPixelToImageBuffer(x, y, ri, gi, bi);           // set alpha channel
+			        ri-=rate_r;
+			        gi-=rate_g;
+			        bi-=rate_b;
+			    }
+			}
+		}
+
+	    // for(var y = y; y < margin; y++) {
+		    // 
+		// }
+
+	}
+
+
+
+
+
+	// create off-screen canvas element
+	var canvas = document.createElement('canvas'),
+	ctx = canvas.getContext('2d');
+
+	canvas.width = width;
+	canvas.height = height;
+
+	// create imageData object
+	var idata = ctx.createImageData(width, height);
+
+	// set our buffer as source
+	idata.data.set(buffer);
+
+	// update canvas with new data
+	ctx.putImageData(idata, 0, 0);
+
+	var dataUri = canvas.toDataURL(); // produces a PNG file
+	image = document.getElementById("myimage")
+	// image.onload = imageLoaded;       // optional callback function
+	image.src = dataUri;
+
+
+</script>
+</body>
+</html>

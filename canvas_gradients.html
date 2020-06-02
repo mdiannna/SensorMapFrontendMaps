@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <style type="text/css">
+    .container {
+  display: flex;
+  width: 400px;
+  
+  .column {
+    max-width: 100%;
+    flex: 0 0 400px;
+  }
+  
+  video, canvas {
+    max-width: 100%;
+    background: #ccc;
+  }
+}
+
+.video-container {
+  width: 400px;
+}
+  </style>
+</head>
+<body>
+
+
+<div class="container">
+  <!-- <div class="column"> -->
+    <!-- <video id="SourceVideo"></video> -->
+  <!-- </div> -->
+  <div class="column">
+    <div class="canvas">
+       <canvas id="Canvas" width=400 height=400></canvas>
+    </div>
+  </div>
+</div>
+
+<button id="StartButton" onclick="startGradient()">Start</button>
+From: <input type="color" id="FromColor" value="#21204B">
+To: <input type="color" id="ToColor" value="#F4CFFD">
+
+
+<script type="text/javascript">
+
+  var gradients = [
+  {r: 32, g: 144, b: 254},
+  {r: 41, g: 125, b: 253},
+  {r: 65, g: 112, b: 251},
+  {r: 91, g: 96, b: 250},
+  {r: 118, g: 81, b: 248},
+  {r: 145, g: 65, b: 246},
+  {r: 172, g: 49, b: 245},
+  {r: 197, g: 34, b: 244},
+  {r: 220, g: 21, b: 242},
+  {r: 241, g: 22, b: 242},
+];
+
+ var startButton;
+var fromColor;
+var toColor;
+var canvas;
+var context;
+var video;
+var gradients = {};
+
+function init() {
+  startButton = document.getElementById('StartButton');
+  fromColor = document.getElementById('FromColor');
+  toColor = document.getElementById('ToColor');
+  canvas = document.getElementById('Canvas');
+  context = canvas.getContext('2d');
+  }
+
+var gradientColors = createGradient('#0096ff', '#ff00f0');
+var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+applyGradient(imageData.data);
+
+for (var i = 0; i < data.length; i += 4) {
+  // Get the each channel color value
+  var redValue = data[i];
+  var greenValue = data[i+1];
+  var blueValue = data[i+2];
+
+  // Mapping the color values to the gradient index
+  // Replacing the grayscale color value with a color for the duotone gradient
+  data[i] = gradientColors[redValue].r;
+  data[i+1] = gradientColors[greenValue].g;
+  data[i+2] = gradientColors[blueValue].b;
+  data[i+3] = 255;
+}
+
+
+
+
+</script>
+</body>
+</html>

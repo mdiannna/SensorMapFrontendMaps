@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<h1>Test create image from pixels</h1>
+<img src="" id = "myimage" height=400 width=400>
+<script type="text/javascript">
+
+	function addPixelToImageBuffer(x, y, r, g, b) {
+		var pos = (y * width + x) * 4; // position in buffer based on x and y
+        buffer[pos  ] = r;           // some R value [0, 255]
+        buffer[pos+1] = g;           // some G value
+        buffer[pos+2] = b;           // some B value
+        buffer[pos+3] = 255;
+	}
+
+	function addSquareToImageBuffer(xstart, ystart, width, height, r, g, b) {
+		for(var y=ystart; y<ystart+height; y++) {
+			for(var x=xstart; x<xstart+width; x++) {
+				addPixelToImageBuffer(x, y, r, g, b);
+			}
+		}
+	}
+
+	var width = 400,
+    height = 400,
+    buffer = new Uint8ClampedArray(width * height * 4);
+
+    for(var y = 0; y < height; y++) {
+	    for(var x = 0; x < width; x++) {
+	        addPixelToImageBuffer(x, y, 100, 50, 100);           // set alpha channel
+	    }
+	}
+
+	addSquareToImageBuffer(0, 0, 100, 100, 200, 0, 0);
+	addSquareToImageBuffer(100, 0, 100, 100, 200, 0, 100);
+	addSquareToImageBuffer(200, 0, 100, 100, 100, 0, 100);
+	addSquareToImageBuffer(300, 0, 100, 100, 100, 50, 0);
+
+	addSquareToImageBuffer(0, 100, 100, 100, 200, 0, 100);
+	addSquareToImageBuffer(100, 100, 100, 100, 100, 0, 100);
+	addSquareToImageBuffer(200, 100, 100, 100, 100, 50, 0);
+	addSquareToImageBuffer(300, 100, 100, 100, 200, 0, 0);
+
+
+
+	// create off-screen canvas element
+	var canvas = document.createElement('canvas'),
+	ctx = canvas.getContext('2d');
+
+	canvas.width = width;
+	canvas.height = height;
+
+	// create imageData object
+	var idata = ctx.createImageData(width, height);
+
+	// set our buffer as source
+	idata.data.set(buffer);
+
+	// update canvas with new data
+	ctx.putImageData(idata, 0, 0);
+
+	var dataUri = canvas.toDataURL(); // produces a PNG file
+	image = document.getElementById("myimage")
+	// image.onload = imageLoaded;       // optional callback function
+	image.src = dataUri;
+
+
+</script>
+</body>
+</html>
